@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sin Conexión</title>
+<style>
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background-color: #ffffff;
+color: #333333;
+text-align: center;
+padding: 40px 20px;
+margin: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+height: 80vh;
+}
+.icono {
+font-size: 70px;
+color: #e67e22; /* Color naranja/alerta amigable */
+margin-bottom: 20px;
+}
+h1 {
+font-size: 24px;
+margin-bottom: 10px;
+color: #1a1a1a;
+}
+p {
+font-size: 16px;
+color: #666666;
+margin-bottom: 30px;
+max-width: 300px;
+line-height: 1.5;
+}
+.btn-reintentar {
+background-color: #000000;
+color: #ffffff;
+border: none;
+padding: 12px 35px;
+font-size: 16px;
+font-weight: bold;
+border-radius: 25px;
+cursor: pointer;
+box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+transition: transform 0.2s;
+}
+.btn-reintentar:active {
+transform: scale(0.95);
+}
+</style>
+</head>
+<body>
+
+<div class="icono">⚠️</div>
+
+<h1>Conexión no disponible</h1>
+<p>No se pudo conectar al sistema. Revisa tus datos móviles o tu red Wi-Fi e inténtalo de nuevo.</p>
+
+<button class="btn-reintentar" onclick="window.location.href='https://control.mudanzasellince.com/?timeout=1'">
+Reintentar
+</button>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+[
+  {
+    "artifactId": "biometric",
+    "excludes": [],
+    "groupId": "androidx.biometric",
+    "versionName": "1.1.0"
+  }
+]

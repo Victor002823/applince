@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://tools.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#FFFFFF"
+tools:context=".MainActivity">
+
+<WebView
+android:id="@+id/webView"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:visibility="gone" />
+
+<LinearLayout
+android:id="@+id/logoSplash"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#FFFFFF"
+android:gravity="center"
+android:orientation="vertical">
+
+<ImageView
+android:id="@+id/lince"
+android:layout_width="240dp"
+android:layout_height="240dp"
+android:src="@drawable/lince"
+android:scaleType="fitCenter" />
+
+</LinearLayout>
+
+</FrameLayout>
