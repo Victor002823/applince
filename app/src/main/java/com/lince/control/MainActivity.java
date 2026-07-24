@@ -1,4 +1,4 @@
-	package com.lince.control;
+package com.lince.control;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -76,7 +76,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			cookieManager.flush();
-			} else {
+		} else {
 			CookieSyncManager.createInstance(this);
 			CookieSyncManager.getInstance().sync();
 		}
@@ -164,7 +164,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 							}
 							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 								CookieManager.getInstance().flush();
-								} else {
+							} else {
 								CookieSyncManager.getInstance().sync();
 							}
 						}
@@ -260,7 +260,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 					CookieManager.getInstance().flush();
-					} else {
+				} else {
 					CookieSyncManager.getInstance().sync();
 				}
 				
@@ -329,7 +329,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					Intent intent = new Intent(Intent.ACTION_VIEW);
 					intent.setData(Uri.parse(url));
 					startActivity(intent);
-					} catch (Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			});
@@ -377,18 +377,18 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 							
 							if (fileName.endsWith(".xlsx")) {
 								shareIntent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-								} else if (fileName.endsWith(".csv")) {
+							} else if (fileName.endsWith(".csv")) {
 								shareIntent.setType("text/csv");
-								} else {
+							} else {
 								shareIntent.setType("application/pdf");
 							}
 							
 							shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 							startActivity(Intent.createChooser(shareIntent, "Compartir Reporte / Documento"));
-							} else {
+						} else {
 							Toast.makeText(MainActivity.this, "No se pudo generar la URI del archivo", Toast.LENGTH_SHORT).show();
 						}
-						} catch (final Exception e) {
+					} catch (final Exception e) {
 						e.printStackTrace();
 						Toast.makeText(MainActivity.this, "Error de escritura: " + e.getMessage(), Toast.LENGTH_LONG).show();
 					}
@@ -441,7 +441,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					.setNegativeButton("Luego", null)
 					.show();
 				});
-				} else {
+			} else {
 				Log.d("HUELLA_DEBUG", "El usuario ya tiene registro biométrico local para: " + correoClean);
 			}
 		}
@@ -454,7 +454,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				correoLoginPendiente = correo.trim().toLowerCase();
 				if (tieneInternet()) {
 					ejecutarLectorBiometrico();
-					} else {
+				} else {
 					Toast.makeText(mActivity, "Sin conexión a Internet.", Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -471,7 +471,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				
 				if (tieneInternet()) {
 					ejecutarLectorBiometrico();
-					} else {
+				} else {
 					Toast.makeText(mActivity, "Sin conexión a Internet. No se puede registrar la huella.", Toast.LENGTH_LONG).show();
 				}
 			});
@@ -497,7 +497,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					if (tieneInternet()) {
 						correoLoginPendiente = correoUsuario.trim().toLowerCase();
 						ejecutarLectorBiometrico();
-						} else {
+					} else {
 						Toast.makeText(mActivity, "Sin conexión a Internet. No se puede iniciar sesión.", Toast.LENGTH_LONG).show();
 					}
 				}
@@ -515,9 +515,9 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					String urlActual = myWebView.getUrl();
 					if (urlActual != null && urlActual.contains("panel_control.php")) {
 						myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(false, 'CANCELADO')", null);
-						} else if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
+					} else if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
 						myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(false, 'CANCELADO')", null);
-						} else {
+					} else {
 						myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'CANCELADO')", null);
 					}
 				});
@@ -528,7 +528,6 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				super.onAuthenticationSucceeded(result);
 				
 				runOnUiThread(() -> {
-					// 🚀 TRÁMITE ANTI-CONGELAMIENTO: Enciende la pantalla de carga animada nativa de inmediato
 					if (logoSplash != null && logoSplash.getVisibility() != View.VISIBLE) {
 						logoSplash.animate().cancel();
 						logoSplash.setAlpha(1f);
@@ -540,23 +539,20 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 					String token = prefs.getString("token_" + correoLoginPendiente, "");
 					
-					// 🔥 CASO 1: Captura exitosa desde el Panel de Control
 					if (urlActual != null && urlActual.contains("panel_control.php")) {
 						prefs.edit().putBoolean("huella_registrada_" + correoLoginPendiente, true).apply();
 						myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(true, 'OK')", null);
 						return;
 					}
 					
-					// 🔥 CASO 2: Confirmación de Login biométrico alternativo
 					if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
 						myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(true, 'OK')", null);
 						return;
 					}
 					
-					// 🔥 CASO 3: Login directo llamando al objeto global (Se quitó el Toast negro nativo)
 					if (token != null && !token.trim().isEmpty()) {
 						myWebView.evaluateJavascript("javascript:window.resultadoHuella(true, 'OK')", null);
-						} else {
+					} else {
 						myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'NO_REGISTRADO')", null);
 					}
 				});
@@ -591,7 +587,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 	public void onBackPressed() {
 		if (myWebView != null && myWebView.canGoBack()) {
 			myWebView.goBack();
-			} else {
+		} else {
 			super.onBackPressed();
 		}
 	}
