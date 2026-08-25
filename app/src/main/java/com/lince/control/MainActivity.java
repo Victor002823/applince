@@ -315,7 +315,23 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT || errorCode == ERROR_UNKNOWN) {
 					view.loadUrl("file:///android_asset/sin_internet.html");
 				}
-			}
+                        }
+
+
+                        @Override
+                        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                if (url.startsWith("geo:") || url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("whatsapp:") || url.startsWith("intent:")) {
+                                        try {
+                                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                                Intent chooser = Intent.createChooser(intent, "Abrir con");
+                                                startActivity(chooser);
+                                        } catch (Exception e) {
+                                                e.printStackTrace();
+                                        }
+                                        return true;
+                                }
+                                return false;
+                        }
 		});
 		
 		myWebView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
