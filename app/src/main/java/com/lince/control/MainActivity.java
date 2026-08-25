@@ -44,6 +44,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 	private AndroidAppInterface sharingBridge;
 	
 	private String correoLoginPendiente = "";
+        private boolean modoRegistroHuellaPendiente = false;
 	private static final String PREFS_NAME = "SesionLince";
 	
 	@Override
@@ -531,6 +532,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 			if (correo == null || correo.trim().isEmpty()) return;
 			mActivity.runOnUiThread(() -> {
 				correoLoginPendiente = correo.trim().toLowerCase();
+                            modoRegistroHuellaPendiente = true;
 				if (tieneInternet()) {
 					ejecutarLectorBiometrico();
 				} else {
@@ -545,6 +547,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 			if (correoUsuario == null || correoUsuario.trim().isEmpty()) return;
 			mActivity.runOnUiThread(() -> {
 				correoLoginPendiente = correoUsuario.trim().toLowerCase();
+                                modoRegistroHuellaPendiente = true;
 				SharedPreferences prefs = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 				prefs.edit().putString("correo_registro", correoLoginPendiente).apply();
 				
@@ -575,6 +578,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 					
 					if (tieneInternet()) {
 						correoLoginPendiente = correoUsuario.trim().toLowerCase();
+                                                modoRegistroHuellaPendiente = false;
 						ejecutarLectorBiometrico();
 					} else {
 						Toast.makeText(mActivity, "Sin conexión a Internet. No se puede iniciar sesión.", Toast.LENGTH_LONG).show();
@@ -630,15 +634,16 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 			public void onAuthenticationError(int errorCode, CharSequence errString) {
 				super.onAuthenticationError(errorCode, errString);
 				runOnUiThread(() -> {
-					String urlActual = myWebView.getUrl();
-					if (urlActual != null && urlActual.contains("panel_control.php")) {
-						myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(false, 'CANCELADO')", null);
-					} else if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
-						myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(false, 'CANCELADO')", null);
-					} else {
-						myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'CANCELADO')", null);
-					}
-				});
+                                String urlActual = myWebView.getUrl();
+                                if (modoRegistroHuellaPendiente) {
+                                        modoRegistroHuellaPendiente = false;
+                                        myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(false, 'CANCELADO')", null);
+                                } else if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
+                                        myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(false, 'CANCELADO')", null);
+                                } else {
+                                        myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'CANCELADO')", null);
+                                }
+                        });
 			}
 			
 			@Override
@@ -653,27 +658,31 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 						myWebView.setVisibility(View.GONE);
                                                 activarTimeoutSeguridadSplash();
 					}
-					
-					String urlActual = myWebView.getUrl();
-					SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-					String token = prefs.getString("token_" + correoLoginPendiente, "");
-					
-					if (urlActual != null && urlActual.contains("panel_control.php")) {
-						prefs.edit().putBoolean("huella_registrada_" + correoLoginPendiente, true).apply();
-						myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(true, 'OK')", null);
-						return;
-					}
-					
-					if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
-						myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(true, 'OK')", null);
-						return;
-					}
-					
-					if (token != null && !token.trim().isEmpty()) {
-						myWebView.evaluateJavascript("javascript:window.resultadoHuella(true, 'OK')", null);
-					} else {
-						myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'NO_REGISTRADO')", null);
-					}
+                                        String urlActual = myWebView.getUrl();
+                                        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                                        String token = prefs.getString("token_" + correoLoginPendiente, "");
+
+                                        // Se usa una bandera explicita (no la URL, que puede variar por
+                                        // reescrituras de .htaccess como /panel en vez de panel_control.php)
+                                        // para saber si el sensor se disparo para REGISTRAR una huella nueva
+                                        // o para hacer LOGIN con una huella ya existente.
+                                        if (modoRegistroHuellaPendiente) {
+                                                modoRegistroHuellaPendiente = false;
+                                                prefs.edit().putBoolean("huella_registrada_" + correoLoginPendiente, true).apply();
+                                                myWebView.evaluateJavascript("javascript:resultadoRegistroHuella(true, 'OK')", null);
+                                                return;
+                                        }
+
+                                        if (urlActual != null && urlActual.contains("validar_biometrico.php")) {
+                                                myWebView.evaluateJavascript("javascript:resultadoAutenticacionNativa(true, 'OK')", null);
+                                                return;
+                                        }
+
+                                        if (token != null && !token.trim().isEmpty()) {
+                                                myWebView.evaluateJavascript("javascript:window.resultadoHuella(true, 'OK')", null);
+                                        } else {
+                                                myWebView.evaluateJavascript("javascript:window.resultadoHuella(false, 'NO_REGISTRADO')", null);
+                                        }
 				});
 			}
 			
