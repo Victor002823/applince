@@ -66,8 +66,6 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 		webSettings.setDatabaseEnabled(true);
 		
 		String cacheDirPath = getCacheDir().getAbsolutePath();
-		webSettings.setAppCachePath(cacheDirPath);
-		webSettings.setAppCacheEnabled(true);
 		webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
 		
 		CookieManager cookieManager = CookieManager.getInstance();
