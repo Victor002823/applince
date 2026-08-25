@@ -542,6 +542,22 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 		}
 	}
 	
+        // Red de seguridad: si el splash se queda visible mas de 6 segundos
+        // (por ejemplo, un error de login/biometria que nunca navega a otra
+        // pagina y por lo tanto nunca dispara onPageFinished), se oculta solo
+        // para no dejar al usuario atorado viendo el logo para siempre.
+        private void activarTimeoutSeguridadSplash() {
+                if (logoSplash == null) return;
+                logoSplash.postDelayed(() -> {
+                        if (logoSplash.getVisibility() == View.VISIBLE) {
+                                logoSplash.animate().alpha(0f).setDuration(250).withEndAction(() -> {
+                                        logoSplash.setVisibility(View.GONE);
+                                        myWebView.setVisibility(View.VISIBLE);
+                                }).start();
+                        }
+                }, 6000);
+        }
+
 	private void ejecutarLectorBiometrico() {
 		Executor executor = ContextCompat.getMainExecutor(this);
 		BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor, new BiometricPrompt.AuthenticationCallback() {
@@ -570,6 +586,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 						logoSplash.setAlpha(1f);
 						logoSplash.setVisibility(View.VISIBLE);
 						myWebView.setVisibility(View.GONE);
+                                                activarTimeoutSeguridadSplash();
 					}
 					
 					String urlActual = myWebView.getUrl();
