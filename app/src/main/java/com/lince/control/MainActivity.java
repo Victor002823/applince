@@ -168,6 +168,48 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 						}
 					});
 					
+                                        popupWebView.setWebChromeClient(new WebChromeClient() {
+                                                @Override
+                                                public boolean onJsAlert(WebView view, String url, String message, android.webkit.JsResult result) {
+                                                        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
+                                                                .setMessage(message)
+                                                                .setPositiveButton("OK", (d, which) -> result.confirm())
+                                                                .setOnCancelListener(d -> result.cancel())
+                                                                .create();
+                                                        estilizarDialogoLince(dialog);
+                                                        return true;
+                                                }
+
+                                                @Override
+                                                public boolean onJsConfirm(WebView view, String url, String message, android.webkit.JsResult result) {
+                                                        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
+                                                                .setMessage(message)
+                                                                .setPositiveButton("OK", (d, which) -> result.confirm())
+                                                                .setNegativeButton("Cancelar", (d, which) -> result.cancel())
+                                                                .setOnCancelListener(d -> result.cancel())
+                                                                .create();
+                                                        estilizarDialogoLince(dialog);
+                                                        return true;
+                                                }
+
+                                                @Override
+                                                public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, android.webkit.JsPromptResult result) {
+                                                        final android.widget.EditText input = new android.widget.EditText(MainActivity.this);
+                                                        input.setText(defaultValue);
+                                                        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+                                                        input.setPadding(pad, pad, pad, pad);
+                                                        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
+                                                                .setMessage(message)
+                                                                .setView(input)
+                                                                .setPositiveButton("OK", (d, which) -> result.confirm(input.getText().toString()))
+                                                                .setNegativeButton("Cancelar", (d, which) -> result.cancel())
+                                                                .setOnCancelListener(d -> result.cancel())
+                                                                .create();
+                                                        estilizarDialogoLince(dialog);
+                                                        return true;
+                                                }
+                                        });
+
 					mainLayout.addView(popupWebView, new LinearLayout.LayoutParams(
 					ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 					
@@ -546,6 +588,29 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
         // (por ejemplo, un error de login/biometria que nunca navega a otra
         // pagina y por lo tanto nunca dispara onPageFinished), se oculta solo
         // para no dejar al usuario atorado viendo el logo para siempre.
+        // Aplica el estilo visual de marca (tarjeta blanca redondeada, boton
+        // principal azul #1400AD, boton secundario gris) a un AlertDialog nativo
+        // de Android, para que los alert()/confirm()/prompt() de las paginas web
+        // que se abren en popup se vean consistentes con el resto de la app.
+        private void estilizarDialogoLince(android.app.AlertDialog dialog) {
+                dialog.show();
+                android.view.Window window = dialog.getWindow();
+                if (window != null) {
+                        window.setBackgroundDrawableResource(R.drawable.bg_dialog_rounded);
+                }
+
+                android.widget.Button btnPositivo = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+                if (btnPositivo != null) {
+                        btnPositivo.setTextColor(0xFF1400AD);
+                        btnPositivo.setTypeface(null, android.graphics.Typeface.BOLD);
+                }
+
+                android.widget.Button btnNegativo = dialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE);
+                if (btnNegativo != null) {
+                        btnNegativo.setTextColor(0xFF64748B);
+                }
+        }
+
         private void activarTimeoutSeguridadSplash() {
                 if (logoSplash == null) return;
                 logoSplash.postDelayed(() -> {
