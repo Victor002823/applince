@@ -409,6 +409,29 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 				}
 			});
 		}
+
+                @Keep
+                @JavascriptInterface
+                public void abrirWhatsapp(final String telefono, final String mensaje) {
+                        runOnUiThread(() -> {
+                                try {
+                                        String numero = telefono.replaceAll("\\D", "");
+                                        if (numero.length() == 10) {
+                                                numero = "52" + numero;
+                                        }
+                                        String url = "https://wa.me/" + numero;
+                                        if (mensaje != null && !mensaje.trim().isEmpty()) {
+                                                url += "?text=" + Uri.encode(mensaje);
+                                        }
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                        Intent chooser = Intent.createChooser(intent, "Abrir con");
+                                        startActivity(chooser);
+                                } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Toast.makeText(MainActivity.this, "No se pudo abrir WhatsApp", Toast.LENGTH_SHORT).show();
+                                }
+                        });
+                }
 	}
 	
 	@Keep
