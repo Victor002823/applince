@@ -354,11 +354,15 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 			}
 			
 			@Override
-			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-				if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT || errorCode == ERROR_UNKNOWN) {
-					view.loadUrl("file:///android_asset/sin_internet.html");
+			public void onReceivedError(WebView view, android.webkit.WebResourceRequest request, android.webkit.WebResourceError error) {
+				super.onReceivedError(view, request, error);
+				if (request.isForMainFrame()) {
+					int errorCode = error.getErrorCode();
+					if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT || errorCode == ERROR_UNKNOWN) {
+						view.loadUrl("file:///android_asset/sin_internet.html");
+					}
 				}
-                        }
+			}
 
 
                         @Override
