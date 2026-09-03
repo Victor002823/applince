@@ -355,13 +355,17 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 			
 			@Override
 			public void onReceivedError(WebView view, android.webkit.WebResourceRequest request, android.webkit.WebResourceError error) {
-				super.onReceivedError(view, request, error);
-				if (request.isForMainFrame()) {
-					int errorCode = error.getErrorCode();
-					if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT || errorCode == ERROR_UNKNOWN) {
-						view.loadUrl("file:///android_asset/sin_internet.html");
-					}
-				}
+                                super.onReceivedError(view, request, error);
+                                if (request.isForMainFrame()) {
+                                        int errorCode = error.getErrorCode();
+                                        final String debugMsg = "URL: " + request.getUrl() + " | Code: " + errorCode + " | Desc: " + error.getDescription();
+                                        Log.d("DEBUG_ERROR", debugMsg);
+                                        runOnUiThread(() -> Toast.makeText(MainActivity.this, debugMsg, Toast.LENGTH_LONG).show());
+                                        if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT || errorCode == ERROR_UNKNOWN) {
+                                                view.loadUrl("file:///android_asset/sin_internet.html");
+                                        }
+                                }
+                        }
 			}
 
 
