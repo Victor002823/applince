@@ -52,6 +52,12 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_main);
+
+                android.app.NotificationManager nmx = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                nmx.createNotificationChannel(new android.app.NotificationChannel(ReminderReceiver.CHANNEL_ID, "Recordatorios de servicio", android.app.NotificationManager.IMPORTANCE_HIGH));
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 101);
+                }
 		
 		myWebView = findViewById(R.id.webView);
 		logoSplash = findViewById(R.id.logoSplash);
@@ -412,6 +418,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
             @JavascriptInterface
             public void programarRecordatorio(final int servicioId, final String titulo, final String mensaje, final long inicioMillis) {
                     android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Recordatorio programado: servicio #" + servicioId, Toast.LENGTH_SHORT).show());
                     long[] offsetsMin = {0, 30, 60, 90, 120};
                     for (int k = 0; k < offsetsMin.length; k++) {
                             int code = servicioId * 10 + k;
