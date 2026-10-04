@@ -407,6 +407,27 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 	
 	@Keep
 	public class AndroidAppInterface {
+
+            @Keep
+            @JavascriptInterface
+            public void programarRecordatorio(final int servicioId, final String titulo, final String mensaje, final long inicioMillis) {
+                    android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    long[] offsetsMin = {0, 30, 60, 90, 120};
+                    for (int k = 0; k < offsetsMin.length; k++) {
+                            int code = servicioId * 10 + k;
+                            Intent in = new Intent(MainActivity.this, ReminderReceiver.class);
+                            in.putExtra("titulo", titulo);
+                            in.putExtra("mensaje", mensaje);
+                            in.putExtra("code", code);
+                            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(MainActivity.this, code, in,
+                                    android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+                            am.cancel(pi);
+                            long t = inicioMillis + offsetsMin[k] * 60000L;
+                            if (t > System.currentTimeMillis()) {
+                                    am.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, t, pi);
+                            }
+                    }
+            }
 		@Keep
 		@JavascriptInterface
 		public void sharePdf(final String base64Data, final String fileName) {
