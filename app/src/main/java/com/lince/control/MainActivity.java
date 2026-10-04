@@ -420,6 +420,33 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
                     android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Recordatorio programado: servicio #" + servicioId, Toast.LENGTH_SHORT).show());
                     long[] offsetsMin = {0, 30, 60, 90, 120};
+                    {
+                            long previo24 = inicioMillis - 24L * 60 * 60 * 1000;
+                            java.util.Calendar cal = java.util.Calendar.getInstance();
+                            cal.setTimeInMillis(previo24);
+                            int minDia = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE);
+                            if (minDia < 12 * 60) {
+                                    cal.set(java.util.Calendar.HOUR_OF_DAY, 12);
+                                    cal.set(java.util.Calendar.MINUTE, 0);
+                                    cal.set(java.util.Calendar.SECOND, 0);
+                            } else if (minDia > 21 * 60) {
+                                    cal.set(java.util.Calendar.HOUR_OF_DAY, 21);
+                                    cal.set(java.util.Calendar.MINUTE, 0);
+                                    cal.set(java.util.Calendar.SECOND, 0);
+                            }
+                            long t24 = cal.getTimeInMillis();
+                            int code24 = servicioId * 10 + 5;
+                            Intent in24 = new Intent(MainActivity.this, ReminderReceiver.class);
+                            in24.putExtra("titulo", "Servicio mañana: " + titulo);
+                            in24.putExtra("mensaje", mensaje);
+                            in24.putExtra("code", code24);
+                            android.app.PendingIntent pi24 = android.app.PendingIntent.getBroadcast(MainActivity.this, code24, in24,
+                                    android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+                            am.cancel(pi24);
+                            if (t24 > System.currentTimeMillis()) {
+                                    am.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, t24, pi24);
+                            }
+                    }
                     for (int k = 0; k < offsetsMin.length; k++) {
                             int code = servicioId * 10 + k;
                             Intent in = new Intent(MainActivity.this, ReminderReceiver.class);
