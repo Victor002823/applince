@@ -416,6 +416,22 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 
             @Keep
             @JavascriptInterface
+            public void programarSeguimiento(final int id, final String titulo, final String mensaje, final long minutos) {
+                    android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    int code = 1000000000 + id;
+                    Intent in = new Intent(MainActivity.this, ReminderReceiver.class);
+                    in.putExtra("titulo", titulo);
+                    in.putExtra("mensaje", mensaje);
+                    in.putExtra("code", code);
+                    android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(MainActivity.this, code, in,
+                            android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+                    am.cancel(pi);
+                    am.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + minutos * 60000L, pi);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Seguimiento programado en " + minutos + " min", Toast.LENGTH_SHORT).show());
+            }
+
+            @Keep
+            @JavascriptInterface
             public void programarRecordatorio(final int servicioId, final String titulo, final String mensaje, final long inicioMillis) {
                     android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Recordatorio programado: servicio #" + servicioId, Toast.LENGTH_SHORT).show());
