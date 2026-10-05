@@ -539,6 +539,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
                     in.putExtra("titulo", titulo);
                     in.putExtra("mensaje", mensaje);
                     in.putExtra("code", code);
+                    in.putExtra("modal", true);
                     android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(MainActivity.this, code, in,
                             android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
                     am.cancel(pi);

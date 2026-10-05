@@ -18,9 +18,10 @@ public class ReminderReceiver extends BroadcastReceiver {
         String titulo = i.getStringExtra("titulo");
         String msg = i.getStringExtra("mensaje");
         int code = i.getIntExtra("code", 0);
+        boolean modal = i.getBooleanExtra("modal", false);
 
-        // App abierta: modal directo, sin notificación
-        if (MainActivity.mostrarSiVisible(titulo, msg)) {
+        // Solo seguimiento de cotizaciones/servicios: con la app abierta, modal directo
+        if (modal && MainActivity.mostrarSiVisible(titulo, msg)) {
             try {
                 Ringtone r = RingtoneManager.getRingtone(c, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 if (r != null) r.play();
@@ -28,15 +29,16 @@ public class ReminderReceiver extends BroadcastReceiver {
             return;
         }
 
-        // App cerrada o en segundo plano: notificación; al tocarla abre el modal
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "Recordatorios de servicio", NotificationManager.IMPORTANCE_HIGH));
 
         Intent open = new Intent(c, MainActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        open.putExtra("mostrar_modal", true);
-        open.putExtra("titulo", titulo);
-        open.putExtra("mensaje", msg);
+        if (modal) {
+            open.putExtra("mostrar_modal", true);
+            open.putExtra("titulo", titulo);
+            open.putExtra("mensaje", msg);
+        }
         PendingIntent pi = PendingIntent.getActivity(c, code, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification n = new Notification.Builder(c, CHANNEL_ID)
