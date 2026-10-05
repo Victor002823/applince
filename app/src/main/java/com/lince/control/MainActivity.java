@@ -445,7 +445,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
             android.graphics.drawable.GradientDrawable fondo = new android.graphics.drawable.GradientDrawable();
             fondo.setColor(0xFFFFFFFF);
             float r = 28 * d;
-            fondo.setCornerRadii(new float[]{r, r, r, r, 0, 0, 0, 0});
+            fondo.setCornerRadii(new float[]{r, r, r, r, r, r, r, r});
             box.setBackground(fondo);
 
             TextView icono = new TextView(this);
@@ -494,7 +494,11 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
             box.addView(btn, bp);
 
             final com.google.android.material.bottomsheet.BottomSheetDialog dlg = new com.google.android.material.bottomsheet.BottomSheetDialog(this);
-            dlg.setContentView(box);
+            android.widget.FrameLayout envoltorio = new android.widget.FrameLayout(this);
+            int margen = (int) (16 * d);
+            envoltorio.setPadding(margen, 0, margen, margen);
+            envoltorio.addView(box, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            dlg.setContentView(envoltorio);
             btn.setOnClickListener(v -> dlg.dismiss());
             dlg.setOnShowListener(x -> {
                     View sheet = dlg.findViewById(com.google.android.material.R.id.design_bottom_sheet);
