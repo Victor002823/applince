@@ -52,6 +52,7 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_main);
+                getWindow().getDecorView().post(() -> procesarIntentRecordatorio(getIntent()));
 
                 android.app.NotificationManager nmx = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 nmx.createNotificationChannel(new android.app.NotificationChannel(ReminderReceiver.CHANNEL_ID, "Recordatorios de servicio", android.app.NotificationManager.IMPORTANCE_HIGH));
@@ -412,6 +413,121 @@ public class MainActivity extends androidx.appcompat.app.AppCompatActivity {
 	}
 	
 	@Keep
+
+    static MainActivity enPrimerPlano;
+    private android.app.Dialog dialogoRecordatorio;
+
+    static boolean mostrarSiVisible(String titulo, String mensaje) {
+            MainActivity a = enPrimerPlano;
+            if (a == null) return false;
+            a.mostrarModalRecordatorio(titulo, mensaje);
+            return true;
+    }
+
+    private void procesarIntentRecordatorio(Intent it) {
+            if (it == null || !it.getBooleanExtra("mostrar_modal", false)) return;
+            String t = it.getStringExtra("titulo");
+            String m = it.getStringExtra("mensaje");
+            it.removeExtra("mostrar_modal");
+            mostrarModalRecordatorio(t != null ? t : "Recordatorio", m != null ? m : "");
+    }
+
+    void mostrarModalRecordatorio(String titulo, String mensaje) {
+            if (isFinishing() || isDestroyed()) return;
+            if (dialogoRecordatorio != null && dialogoRecordatorio.isShowing()) dialogoRecordatorio.dismiss();
+            float d = getResources().getDisplayMetrics().density;
+            int pad = (int) (24 * d);
+
+            LinearLayout box = new LinearLayout(this);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setGravity(Gravity.CENTER_HORIZONTAL);
+            box.setPadding(pad, (int) (32 * d), pad, pad);
+            android.graphics.drawable.GradientDrawable fondo = new android.graphics.drawable.GradientDrawable();
+            fondo.setColor(0xFFFFFFFF);
+            float r = 28 * d;
+            fondo.setCornerRadii(new float[]{r, r, r, r, 0, 0, 0, 0});
+            box.setBackground(fondo);
+
+            TextView icono = new TextView(this);
+            icono.setText("⏰");
+            icono.setTextSize(34);
+            icono.setGravity(Gravity.CENTER);
+            android.graphics.drawable.GradientDrawable circulo = new android.graphics.drawable.GradientDrawable();
+            circulo.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            circulo.setColor(0xFFD6E9FA);
+            icono.setBackground(circulo);
+            int tam = (int) (88 * d);
+            box.addView(icono, new LinearLayout.LayoutParams(tam, tam));
+
+            TextView tv = new TextView(this);
+            tv.setText(titulo);
+            tv.setTextSize(22);
+            tv.setTypeface(null, android.graphics.Typeface.BOLD);
+            tv.setTextColor(0xFF111111);
+            tv.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            tp.topMargin = (int) (20 * d);
+            box.addView(tv, tp);
+
+            TextView mv = new TextView(this);
+            mv.setText(mensaje);
+            mv.setTextSize(15);
+            mv.setTextColor(0xFF444444);
+            mv.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            mp.topMargin = (int) (10 * d);
+            box.addView(mv, mp);
+
+            TextView btn = new TextView(this);
+            btn.setText("Aceptar");
+            btn.setTextSize(16);
+            btn.setTypeface(null, android.graphics.Typeface.BOLD);
+            btn.setTextColor(0xFFFFFFFF);
+            btn.setGravity(Gravity.CENTER);
+            btn.setPadding(0, (int) (16 * d), 0, (int) (16 * d));
+            android.graphics.drawable.GradientDrawable fb = new android.graphics.drawable.GradientDrawable();
+            fb.setColor(0xFF111111);
+            fb.setCornerRadius(14 * d);
+            btn.setBackground(fb);
+            LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            bp.topMargin = (int) (28 * d);
+            box.addView(btn, bp);
+
+            final com.google.android.material.bottomsheet.BottomSheetDialog dlg = new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+            dlg.setContentView(box);
+            btn.setOnClickListener(v -> dlg.dismiss());
+            dlg.setOnShowListener(x -> {
+                    View sheet = dlg.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+                    if (sheet != null) {
+                            sheet.setBackgroundColor(0x00000000);
+                            com.google.android.material.bottomsheet.BottomSheetBehavior<View> bh = com.google.android.material.bottomsheet.BottomSheetBehavior.from(sheet);
+                            bh.setSkipCollapsed(true);
+                            bh.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
+                    }
+            });
+            dialogoRecordatorio = dlg;
+            dlg.show();
+    }
+
+    @Override
+    protected void onResume() {
+            super.onResume();
+            enPrimerPlano = this;
+    }
+
+    @Override
+    protected void onPause() {
+            super.onPause();
+            if (enPrimerPlano == this) enPrimerPlano = null;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+            super.onNewIntent(intent);
+            setIntent(intent);
+            procesarIntentRecordatorio(intent);
+    }
+
 	public class AndroidAppInterface {
 
             @Keep
