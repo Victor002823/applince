@@ -7,15 +7,25 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.lince.control"
+        applicationId "com.mudanzasellince.control"
         minSdk 29
         targetSdk 34
         versionCode 2
         versionName "3.4.7"
     }
 
+    signingConfigs {
+        release {
+            storeFile file(LINCE_STORE_FILE)
+            storePassword LINCE_STORE_PASSWORD
+            keyAlias LINCE_KEY_ALIAS
+            keyPassword LINCE_KEY_PASSWORD
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
