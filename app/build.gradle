@@ -10,7 +10,7 @@ android {
         applicationId "com.mudanzasellince.control"
         minSdk 29
         targetSdk 34
-        versionCode 2
+        versionCode 100 + (System.getenv("GITHUB_RUN_NUMBER") ?: "0").toInteger()
         versionName "3.4.7"
     }
 
