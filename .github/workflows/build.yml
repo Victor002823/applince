@@ -17,6 +17,13 @@ jobs:
         env:
           KS_B64: ${{ secrets.LINCE_KEYSTORE_BASE64 }}
         run: echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/lince-release.jks"
+      - name: Gradle properties
+        run: |
+          {
+            echo "org.gradle.jvmargs=-Xmx2048m"
+            echo "android.useAndroidX=true"
+            echo "android.enableJetifier=true"
+          } >> gradle.properties
       - name: Build release
         env:
           ORG_GRADLE_PROJECT_LINCE_STORE_FILE: ${{ runner.temp }}/lince-release.jks
